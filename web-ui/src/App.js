@@ -24,7 +24,7 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <button onClick={() => rc5Send(1, 0x3d)}>Power</button>
+        <button onClick={() => rc5Send(1, 12)}>Power</button>
         <button onClick={() => rc5Send(1, 0x10)}>V+</button>
         <button onClick={() => rc5Send(1, 0x11)}>V-</button>
       </div>
