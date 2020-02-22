@@ -3,43 +3,45 @@
 #include "wificonfig.h"
 
 #include "rc5.cpp"
+#include "fujitsu-rah2e.cpp"
 
 WiFiServer server(80);
 static const int OUTPUT_PIN = 5;
 IRrc5 rc5 = IRrc5(OUTPUT_PIN);
+IRFujitsuRah2e rah2e = IRFujitsuRah2e(OUTPUT_PIN);
 
 void setup() {
   M5.begin();
-  
+
   M5.Lcd.setBrightness(200);    // BRIGHTNESS MAX 255
   M5.Lcd.fillScreen(BLACK);
-  
+
   Serial.begin(115200);
-  
+
   pinMode(OUTPUT_PIN, OUTPUT);
-  
+
   Serial.print("Connecting to ");
   Serial.println(ssid);
-  
+
   WiFi.begin(ssid, password);
-  
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  
+
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  
+
   M5.Lcd.setTextSize(3);
   M5.Lcd.print(WiFi.localIP());
-  
+
   server.begin();
 }
 
 String readLineFrom(WiFiClient client) {
-  String res = ""; 
+  String res = "";
   while (true) {
     if (!client.connected()) break;
     for(int i=0; !client.available(); i++) {
@@ -49,7 +51,7 @@ String readLineFrom(WiFiClient client) {
         return res;
       }
     }
-    
+
     char c = client.read();
     if (c == '\n' || !c) break;
     if (c != '\r') res += c;
@@ -93,10 +95,22 @@ void loop() {
       sendIndex(client);
       break;
     }
-    
+
     if (line.startsWith("GET /rc5/")) {
       line.replace("GET /rc5/", "");
       rc5.write(line.toInt());
+      send200(client);
+      break;
+    }
+
+    if (line.startsWith("GET /rah2e/")) {
+      char[] turnOffData = char[] {
+        0x14, 0x63, 0x00, 0x10, 0x10,
+        0x02, // turn off
+        ~2 // The last byte is the inverse of penultimate byte
+      };
+
+      rah2e.send(turnOffData, 7);
       send200(client);
       break;
     }
@@ -108,7 +122,7 @@ void loop() {
       break;
     }
   }
-  
+
   client.stop();
   Serial.println("Client Disconnected.");
 }
