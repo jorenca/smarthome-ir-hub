@@ -1,11 +1,15 @@
 #include <WiFi.h>
 #include "wificonfig.h"
 
+#include "rc5.cpp"
+
 WiFiServer server(80);
+static const int OUTPUT_PIN = 5;
+IRrc5 rc5 = IRrc5(OUTPUT_PIN);
 
 void setup() {
   Serial.begin(115200);
-  pinMode(5, OUTPUT);
+  pinMode(OUTPUT_PIN, OUTPUT);
   
   delay(10);
   
@@ -39,15 +43,22 @@ String readLineFrom(WiFiClient client) {
   return res;
 }
 
-void sendResponse(WiFiClient client) {
+void sendIndex(WiFiClient client) {
   client.println("HTTP/1.1 200 OK");
   client.println("Content-type:text/html");
   client.println();
 
-  client.print("Click <a href=\"/H\">here</a><br>ok");
+  client.print("Click <a href=\"/rc5/1/16\">V+</a><br>ok");
 
   client.println();
 }
+
+void send404(WiFiClient client) {
+  client.println("HTTP/1.1 404 Not Found");
+  client.println();
+  client.println();
+}
+
 
 void loop() {
   WiFiClient client = server.available();
@@ -57,15 +68,22 @@ void loop() {
   while (client.connected()) {
     String line = readLineFrom(client);
     Serial.println(line);
+
+    if (line.startsWith("GET / ")) {
+      sendIndex(client);
+      break;
+    }
     
-    if (line.endsWith("GET /H")) {
-      digitalWrite(5, HIGH);
+    if (line.startsWith("GET /rc5/")) {
+      line.replace("GET /rc5/", "");
+      rc5.write(line.toInt());
+      break;
     }
 
     // if the current line is blank, you got two newline characters in a row.
-    // that's the end of the client HTTP request, so send a response:
+    // that's the end of the client HTTP request
     if (line.length() == 0) {
-      sendResponse(client);
+      send404(client);
       break;
     }
   }
