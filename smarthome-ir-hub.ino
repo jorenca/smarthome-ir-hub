@@ -1,4 +1,4 @@
-#include <M5Stack.h>
+#include <M5StickC.h>
 #include <WiFi.h>
 #include "wificonfig.h"
 
@@ -7,7 +7,7 @@
 #include "nec.cpp"
 
 WiFiServer server(80);
-static const int OUTPUT_PIN = 5;
+static const int OUTPUT_PIN = 0;
 IRrc5 rc5 = IRrc5(OUTPUT_PIN);
 IRFujitsuRah2e rah2e = IRFujitsuRah2e(OUTPUT_PIN);
 IRNec nec = IRNec(OUTPUT_PIN);
@@ -15,7 +15,7 @@ IRNec nec = IRNec(OUTPUT_PIN);
 void setup() {
   M5.begin();
 
-  M5.Lcd.setBrightness(200);    // BRIGHTNESS MAX 255
+  //M5.Lcd.setBrightness(200);    // BRIGHTNESS MAX 255
   M5.Lcd.fillScreen(BLACK);
 
   Serial.begin(115200);
