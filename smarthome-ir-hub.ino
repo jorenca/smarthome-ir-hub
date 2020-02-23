@@ -104,7 +104,7 @@ void loop() {
     }
 
     if (line.startsWith("GET /rah2e/")) {
-      char[] turnOffData = char[] {
+      char turnOffData[] = {
         0x14, 0x63, 0x00, 0x10, 0x10,
         0x02, // turn off
         ~2 // The last byte is the inverse of penultimate byte

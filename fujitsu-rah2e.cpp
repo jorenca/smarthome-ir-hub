@@ -27,11 +27,15 @@ class IRFujitsuRah2e {
       for(int i=0; i<len; i++) {
         for(int j=0; j<8; j++) {
           up();
-          delayMicroseconds(448);
+          delayMicroseconds(432); // 448 default
           down();
-          delayMicroseconds(data[i] & (1<<j) ? 1182 : 390);
+          delayMicroseconds(data[i] & (1<<j) ? 1175 : 390); // 1182 default
         }
       }
+
+      up(); // final
+      delayMicroseconds(432);
+      down();
     }
 };
 

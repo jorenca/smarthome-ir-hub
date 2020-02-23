@@ -1,5 +1,13 @@
 .App {
   text-align: center;
+
+  .button-group {
+    border: 1px solid black;
+
+    .group-header {
+      font-size: 2em;
+    }
+  }
 }
 
 button {
