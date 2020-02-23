@@ -4,11 +4,13 @@
 
 #include "rc5.cpp"
 #include "fujitsu-rah2e.cpp"
+#include "nec.cpp"
 
 WiFiServer server(80);
 static const int OUTPUT_PIN = 5;
 IRrc5 rc5 = IRrc5(OUTPUT_PIN);
 IRFujitsuRah2e rah2e = IRFujitsuRah2e(OUTPUT_PIN);
+IRNec nec = IRNec(OUTPUT_PIN);
 
 void setup() {
   M5.begin();
@@ -106,7 +108,7 @@ void loop() {
     if (line.startsWith("GET /rah2e/")) {
       line.replace("GET /rah2e/", "");
       line.replace(" HTTP/1.1", "");
-      
+
       char data[20];
       int len = 0;
       while(len < 20 && line.length() > 0) {
@@ -117,6 +119,23 @@ void loop() {
       }
 
       rah2e.send(data, len);
+      send200(client);
+      break;
+    }
+
+    if (line.startsWith("GET /nec/")) {
+      line.replace("GET /nec/", "");
+      line.replace(" HTTP/1.1", "");
+
+      char data[4];
+      for(int i=0; i < 4 && line.length() > 0; i++) {
+        int nextDelimiter = line.indexOf('/');
+        if (nextDelimiter == -1) nextDelimiter = line.length();
+        data[i] = line.substring(0, nextDelimiter).toInt();
+        line.remove(0, nextDelimiter+1);
+      }
+
+      nec.send(data, 4);
       send200(client);
       break;
     }
